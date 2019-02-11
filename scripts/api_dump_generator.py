@@ -77,6 +77,8 @@ COMMON_CODEGEN = """
 @foreach function where('{funcReturn}' != 'void' and not '{funcName}' in ['vkGetDeviceProcAddr', 'vkGetInstanceProcAddr', 'vkDebugMarkerSetObjectNameEXT','vkSetDebugUtilsObjectNameEXT'])
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {funcTypedParams})
 {{
+    if (!dump_inst.shouldDumpOutput()) return;
+
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
     switch(dump_inst.settings().format())
     {{
@@ -105,14 +107,16 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
         dump_inst.object_name_map.erase(pNameInfo->object);
     }}
 
-    switch(dump_inst.settings().format())
-    {{
-    case ApiDumpFormat::Text:
-        dump_text_{funcName}(dump_inst, result, {funcNamedParams});
-        break;
-    case ApiDumpFormat::Html:
-        dump_html_{funcName}(dump_inst, result, {funcNamedParams});
-        break;
+    if (dump_inst.shouldDumpOutput()) {{
+        switch(dump_inst.settings().format())
+        {{
+        case ApiDumpFormat::Text:
+            dump_text_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        case ApiDumpFormat::Html:
+            dump_html_{funcName}(dump_inst, result, {funcNamedParams});
+            break;
+        }}
     }}
     loader_platform_thread_unlock_mutex(dump_inst.outputMutex());
 }}
@@ -147,6 +151,8 @@ inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcReturn} result, {fu
 @foreach function where('{funcReturn}' == 'void')
 inline void dump_{funcName}(ApiDumpInstance& dump_inst, {funcTypedParams})
 {{
+    if (!dump_inst.shouldDumpOutput()) return;
+
     loader_platform_thread_lock_mutex(dump_inst.outputMutex());
     switch(dump_inst.settings().format())
     {{

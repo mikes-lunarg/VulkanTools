@@ -105,6 +105,8 @@ Detailed Output | `VK_APIDUMP_DETAILED` | `lunarg_api_dump.detailed` | true | Ge
 No Addresses/Handles | `VK_APIDUMP_NO_ADDR` | `lunarg_api_dump.no_addr` | false | Generate output without addresses or handles (which can vary run to run. Instead use the placeholder value "address".
 Flush After Every Command | `VK_APIDUMP_FLUSH` | `lunarg_api_dump.flush` | true | Flush after every API command's output
 Flush After Every Command | `VK_APIDUMP_OUTPUT_FORMAT` | `lunarg_api_dump.output_format` | `text` | Output the API Dump information as either a plain text file (`text`) or as an HTML-formated file (`html`).
+Selective Output Range | `VK_APIDUMP_RANGE` | `lunarg_api_dump.frame_range_format` | `false` | Only output data that belong to frames within the specified range. The range is given by a comma separated list of frames to output or a range of frames with a start, count, and optional interval separated by a dash. A count of 0 will output every frame after the start of the range.
+ 
 
 ### Settings Priority
 
