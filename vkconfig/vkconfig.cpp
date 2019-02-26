@@ -150,7 +150,8 @@ LayerManager::LayerManager()
     if (settings.contains("ExpirationValue") && settings.contains("ExpirationUnit")) {
         active_layers->setExpiration(settings.value("ExpirationValue").toInt(), (DurationUnit) settings.value("ExpirationUnit").toInt());
     }
-    active_layers->setEnabledLayers(override_settings.Layers());
+    active_layers->setEnabledLayers(override_settings.EnabledLayers());
+    active_layers->setDisabledLayers(override_settings.DisabledLayers());
 
     layer_settings->setSettingsValues(override_settings.LayerSettings());
     // TODO: Restore the active layer
@@ -207,12 +208,14 @@ void LayerManager::notify(const QString& message)
 
 void LayerManager::restore()
 {
-    active_layers->setEnabledLayers(override_settings.Layers());
+    active_layers->setEnabledLayers(override_settings.EnabledLayers());
+    active_layers->setDisabledLayers(override_settings.DisabledLayers());
     layer_settings->setSettingsValues(override_settings.LayerSettings());
 
     notify("Restored layers and settings to last saved state");
 }
 
+#include <QDebug>
 void LayerManager::saveAll()
 {
     // The override settings are saved here, but the regular settings are only saved when we close
@@ -220,8 +223,9 @@ void LayerManager::saveAll()
     if (locations->useCustomLayerPaths()) {
         paths = locations->customLayerPaths();
     }
-    const QList<LayerManifest> &layers = active_layers->enabledLayers();
-    override_settings.SaveLayers(paths, layers, active_layers->expiration());
+    const QList<LayerManifest> &enabled_layers = active_layers->enabledLayers();
+    const QList<LayerManifest> &disabled_layers = active_layers->disabledLayers();
+    override_settings.SaveLayers(paths, enabled_layers, disabled_layers, active_layers->expiration());
 
     const QHash<QString, QHash<QString, LayerValue>> &settings = layer_settings->settings();
     override_settings.SaveSettings(settings);
